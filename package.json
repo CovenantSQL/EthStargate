@@ -1,0 +1,27 @@
+{
+  "name": "ethstargate",
+  "version": "1.0.0",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/thunderdb/EthStargate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/thunderdb/EthStargate/issues"
+  },
+  "homepage": "https://gitlab.com/thunderdb/EthStargate#README",
+  "dependencies": {
+    "openzeppelin-solidity": "1.12.0",
+  },
+  "devDependencies": {},
+  "description": ""
+}
