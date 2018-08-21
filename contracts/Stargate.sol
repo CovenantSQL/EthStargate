@@ -9,9 +9,9 @@ contract Stargate is Ownable {
 	mapping (address => uint256) private pledges;
 	mapping (address => uint32) private sequenceIDs;
 
-	event Create(address from, bytes32 id, uint32 sequenceID, uint32 nodeCnt, uint256 ethamount);
-	event Delete(address from, uint32 sequenceID, bytes32 databaseID);
-	event Query(address from, uint32 sequenceID, bytes32 databaseID, string query);
+	event Create(address indexed from, uint32 indexed sequenceID, bytes32 indexed databaseID, uint32 nodeCnt, uint256 ethamount);
+	event Delete(address indexed from, uint32 indexed sequenceID, bytes32 indexed databaseID);
+	event Query(address indexed from, uint32 indexed sequenceID, bytes32 indexed databaseID, bytes query);
 
 	// createDB sends a signal to CovenantSQL to create a database with dbID as database id
 	function createDB(uint32 nodeCnt) external payable returns (bytes32 dbID, uint32 seqID) {
@@ -19,7 +19,7 @@ contract Stargate is Ownable {
 		sequenceIDs[msg.sender] = seqID + 1;
 		dbID = keccak256(this, msg.sender, seqID, nodeCnt);
 		pledges[msg.sender] = pledges[msg.sender].add(msg.value);
-		emit Create(msg.sender, dbID, seqID, nodeCnt, pledges[msg.sender]);
+		emit Create(msg.sender, seqID, dbID, nodeCnt, pledges[msg.sender]);
 	}
 
 	// deleteDB sends a signal to CovenantSQL to delete a database whose database id is dbID
@@ -30,7 +30,7 @@ contract Stargate is Ownable {
 	}
 
 	// queryDB sends a signal to CovenantSQL to query on the database whoes id is
-	function queryDB(bytes32 dbID, string query) external payable returns (uint32 seqID) {
+	function queryDB(bytes32 dbID, bytes query) external payable returns (uint32 seqID) {
 		seqID = sequenceIDs[msg.sender];
 		sequenceIDs[msg.sender] = seqID + 1;
 		emit Query(msg.sender, seqID, dbID, query);
