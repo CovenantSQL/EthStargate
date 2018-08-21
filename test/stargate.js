@@ -11,12 +11,15 @@ contract('Stargate', function(accounts) {
     });
   });
 
-  it("should return an id from createDB", function() {
+  it("should return dbID and seqID from createDB", function() {
     return Stargate.deployed().then(function(instance) {
-      return instance.createDB.call();
-    }).then(function(id) {
-      assert.isNotNull(id, "id should be returned");
-      console.log("createDB: " + id);
+      return instance.createDB.call(5);
+    }).then(function(ids) {
+      dbID = ids[0];
+      seqID = Number(ids[1]);
+      console.log("first time to call createDB that return dbID: " + dbID + ", seqID: " + seqID);
+      assert.isNotNull(dbID, "dbID should be returned");
+      assert.equal(seqID, 0, "seqID should be 0")
     });
   });
 
@@ -27,18 +30,23 @@ contract('Stargate', function(accounts) {
         114, 110, 144, 242, 217, 218, 25, 129,
         223, 212, 173, 173, 82, 136, 84, 218,
         27, 224, 201, 189, 8, 219, 167, 71]);
-    }).then(function(id) {
-      assert.isNotNull(id, "id should be returned");
-      console.log("deleteDB: " + id);
+    }).then(function(seqID) {
+      assert.equal(seqID, 0, "seqID should be 0")
+      console.log("deleteDB: " + seqID);
     });
   });
 
   it("should return an id from queryDB", function() {
     return Stargate.deployed().then(function(instance) {
-      return instance.queryDB.call("select * from test");
-    }).then(function(id) {
-      assert.isNotNull(id, "id should be returned");
-      console.log("queryDB: " + id);
+      return instance.queryDB.call([
+        39, 22, 174, 133, 128, 173, 82, 236,
+        114, 110, 144, 242, 217, 218, 25, 129,
+        223, 212, 173, 173, 82, 136, 84, 218,
+        27, 224, 201, 189, 8, 219, 167, 71],
+        "select * from test");
+    }).then(function(seqID) {
+      assert.equal(seqID, 0, "seqID should be 0")
+      console.log("queryDB: " + seqID);
     });
   });
 });

@@ -7,29 +7,32 @@ contract Stargate is Ownable {
 	using SafeMath for uint256;
 
 	mapping (address => uint256) private pledges;
+	mapping (address => uint32) private sequenceIDs;
 
-	event Create(address from, bytes32 id, uint timestamp, uint256 ethamount);
-	event Delete(address from, bytes32 id, uint timestamp, bytes32 databaseID);
-	event Query(address from, bytes32 id, uint timestamp, string query);
+	event Create(address from, bytes32 id, uint32 sequenceID, uint32 nodeCnt, uint256 ethamount);
+	event Delete(address from, uint32 sequenceID, bytes32 databaseID);
+	event Query(address from, uint32 sequenceID, bytes32 databaseID, string query);
 
-	// createDB sends a signal to CovenantSQL to create a database with _id as database id
-	function createDB() external payable returns (bytes32 _id) {
-		_id = keccak256(this, msg.sender, "create", now);
-		pledges[msg.sender].add(msg.value);
-		emit Create(msg.sender, _id, now, pledges[msg.sender]);
-		return _id;
+	// createDB sends a signal to CovenantSQL to create a database with dbID as database id
+	function createDB(uint32 nodeCnt) external payable returns (bytes32 dbID, uint32 seqID) {
+		seqID = sequenceIDs[msg.sender];
+		sequenceIDs[msg.sender] = seqID + 1;
+		dbID = keccak256(this, msg.sender, seqID, nodeCnt);
+		pledges[msg.sender] = pledges[msg.sender].add(msg.value);
+		emit Create(msg.sender, dbID, seqID, nodeCnt, pledges[msg.sender]);
 	}
 
-	// deleteDB sends a signal to CovenantSQL to delete a database whose database id is databaseID
-	function deleteDB(bytes32 databaseID) external returns (bytes32 _id) {
-		_id = keccak256(this, msg.sender, "delete", now);
-		emit Delete(msg.sender, _id, now, databaseID);
-		return _id;
+	// deleteDB sends a signal to CovenantSQL to delete a database whose database id is dbID
+	function deleteDB(bytes32 dbID) external returns (uint32 seqID) {
+		seqID = sequenceIDs[msg.sender];
+		sequenceIDs[msg.sender] = seqID + 1;
+		emit Delete(msg.sender, seqID, dbID);
 	}
 
-	function queryDB(string q) external payable returns (bytes32 _id) {
-		_id = keccak256(this, msg.sender, "query", q, now);
-		emit Query(msg.sender, _id, now, q);
-		return _id;
+	// queryDB sends a signal to CovenantSQL to query on the database whoes id is
+	function queryDB(bytes32 dbID, string query) external payable returns (uint32 seqID) {
+		seqID = sequenceIDs[msg.sender];
+		sequenceIDs[msg.sender] = seqID + 1;
+		emit Query(msg.sender, seqID, dbID, query);
 	}
 }
