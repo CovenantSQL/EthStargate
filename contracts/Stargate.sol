@@ -13,9 +13,9 @@ contract Stargate is StargateInterface, Ownable {
 	mapping(address => mapping(uint32 => function(string memory) external)) private requests;
 
 	event Create(address from, uint32 sequenceID, uint16 nodeCnt, uint256 ethamount);
-	event Delete(address from, uint32 sequenceID, bytes databaseID);
-	event Query(address from, uint32 sequenceID, bytes databaseID, string query);
-	event Exec(address from, uint32 sequenceID, bytes databaseID, string query);
+	event Drop(address from, uint32 sequenceID, string databaseID);
+	event Query(address from, uint32 sequenceID, string databaseID, string query);
+	event Exec(address from, uint32 sequenceID, string databaseID, string query);
 
 	// create sends a signal to CovenantSQL to create a database with dbID as database id
 	function create(uint16 nodeCnt, function(string memory) external callback) external payable returns (uint32 seqID) {
@@ -28,16 +28,16 @@ contract Stargate is StargateInterface, Ownable {
 	}
 
 	// drop sends a signal to CovenantSQL to drop a database whose database id is dbID
-	function drop(bytes dbID, function(string memory) external callback) external returns (uint32 seqID) {
+	function drop(string dbID, function(string memory) external callback) external returns (uint32 seqID) {
 		seqID = sequenceIDs[msg.sender];
 		sequenceIDs[msg.sender] = seqID + 1;
 		mapping(uint32 => function(string memory) external) sequenceId2Callback = requests[msg.sender];
 		sequenceId2Callback[seqID] = callback;
-		emit Delete(msg.sender, seqID, dbID);
+		emit Drop(msg.sender, seqID, dbID);
 	}
 
 	// query sends a signal to CovenantSQL to query a query on the database whoes id is
-	function query(bytes dbID, string _query, function(string memory) external callback) external payable returns (uint32 seqID) {
+	function query(string dbID, string _query, function(string memory) external callback) external payable returns (uint32 seqID) {
 		seqID = sequenceIDs[msg.sender];
 		sequenceIDs[msg.sender] = seqID + 1;
 		mapping(uint32 => function(string memory) external) sequenceId2Callback = requests[msg.sender];
@@ -46,7 +46,7 @@ contract Stargate is StargateInterface, Ownable {
 	}
 
 	// exec sends a signal to CovenantSQL to exec a query on the database whoes id is
-	function exec(bytes dbID, string _query, function(string memory) external callback) external payable returns (uint32 seqID) {
+	function exec(string dbID, string _query, function(string memory) external callback) external payable returns (uint32 seqID) {
 		seqID = sequenceIDs[msg.sender];
 		sequenceIDs[msg.sender] = seqID + 1;
 		mapping(uint32 => function(string memory) external) sequenceId2Callback = requests[msg.sender];
